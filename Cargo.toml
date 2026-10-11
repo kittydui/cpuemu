@@ -25,6 +25,10 @@ edition = "2024"
 rust-version = "1.85"
 
 [workspace.dependencies]
+iced-x86 = { version = "1.21.0", default-features = false, features = [
+    "std",
+    "decoder",
+] }
 bitflags = "2.13.2"
 emu-shared = { path = "crates/shared" }
 emu-mem = { path = "crates/mem" }

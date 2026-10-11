@@ -5,3 +5,8 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+iced-x86.workspace = true
+bitflags.workspace = true
+emu-shared.workspace = true
+emu-mem.workspace = true
+emu-core.workspace = true
