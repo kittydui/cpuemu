@@ -5,3 +5,6 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+emu-shared.workspace = true
+emu-mem.workspace = true
+anyhow = "1.0.104"
