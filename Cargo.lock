@@ -26,6 +26,7 @@ version = "0.1.0"
 name = "emu-arch-x86"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bitflags",
  "emu-core",
  "emu-mem",

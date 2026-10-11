@@ -16,17 +16,6 @@ use iced_x86::{Instruction, Mnemonic};
 
 use crate::X86State;
 
-use arith::*;
-use control::*;
-use conv::*;
-use data::*;
-use flag::*;
-use logic::*;
-use mul::*;
-use shift::*;
-use stack::*;
-use string::*;
-
 pub(crate) fn execute(
     state: &mut X86State,
     memory: &mut AddressSpace,
@@ -34,6 +23,8 @@ pub(crate) fn execute(
 ) -> Result<(), CpuError> {
     state.rip = instruction.next_ip();
     match instruction.mnemonic() {
+        Mnemonic::Nop => data::nop(state, memory, instruction),
+        Mnemonic::Hlt => Err(CpuError::Halt),
         _ => Err(CpuError::Unimplemented(Address(instruction.ip()))),
     }
 }
