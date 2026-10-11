@@ -25,6 +25,7 @@ edition = "2024"
 rust-version = "1.85"
 
 [workspace.dependencies]
+bitflags = "2.13.2"
 emu-shared = { path = "crates/shared" }
 emu-mem = { path = "crates/mem" }
 emu-core = { path = "crates/core" }
