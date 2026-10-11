@@ -1,0 +1,41 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/shared",
+    "crates/mem",
+    "crates/core",
+    "crates/arch/arch-x86",
+    "crates/arch/arch-aarch64",
+    "crates/execution/interpreter",
+    "crates/execution/jit",
+    "crates/loader",
+    "crates/disasm",
+    "crates/decomp",
+    "crates/dbg",
+    "crates/api",
+    "crates/bindings/python",
+    "crates/bindings/luau",
+    "crates/frontends/cli",
+    "crates/frontends/gui",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+
+[workspace.dependencies]
+emu-shared = { path = "crates/shared" }
+emu-mem = { path = "crates/mem" }
+emu-core = { path = "crates/core" }
+emu-arch-x86 = { path = "crates/arch/arch-x86" }
+emu-arch-aarch64 = { path = "crates/arch/arch-aarch64" }
+emu-interpreter = { path = "crates/execution/interpreter" }
+emu-jit = { path = "crates/execution/jit" }
+emu-loader = { path = "crates/loader" }
+emu-disasm = { path = "crates/disasm" }
+emu-decomp = { path = "crates/decomp" }
+emu-dbg = { path = "crates/dbg" }
+emu-api = { path = "crates/api" }
+emu-python = { path = "crates/bindings/python" }
+emu-luau = { path = "crates/bindings/luau" }
