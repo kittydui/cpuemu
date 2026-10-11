@@ -63,6 +63,9 @@ version = "0.1.0"
 [[package]]
 name = "emu-mem"
 version = "0.1.0"
+dependencies = [
+ "emu-shared",
+]
 
 [[package]]
 name = "emu-python"
