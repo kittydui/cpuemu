@@ -32,6 +32,8 @@ pub(crate) fn execute(
         Mnemonic::Inc => arith::inc(state, memory, instruction),
         Mnemonic::Dec => arith::dec(state, memory, instruction),
         Mnemonic::Neg => arith::neg(state, memory, instruction),
+        Mnemonic::Adc => arith::adc(state, memory, instruction),
+        Mnemonic::Sbb => arith::sbb(state, memory, instruction),
 
         // Mul
         Mnemonic::Imul => mul::imul(state, memory, instruction),

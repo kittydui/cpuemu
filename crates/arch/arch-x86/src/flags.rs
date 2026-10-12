@@ -65,21 +65,13 @@ pub(crate) fn jc(flags: Flags, code: ConditionCode) -> bool {
     }
 }
 
-pub(crate) fn add(a: u64, b: u64, size: Size) -> (u64, Flags) {
-    // mask a and b to the correct size so we dont always just add r* registers (rax, rbx, etc.)
+pub(crate) fn adc(a: u64, b: u64, carry: bool, size: Size) -> (u64, Flags) {
     let (a, b) = (a & size.mask(), b & size.mask());
-    // add b to a.
-    let result = a.wrapping_add(b) & size.mask();
-
+    let sum = a as u128 + b as u128 + carry as u128;
+    let result = sum as u64 & size.mask();
     let mut flags = result_flags(result, size);
-    // set carry flag if result is lt a, (didn't fit as an unsigned number).
-    flags.set(Flags::CF, result < a);
-
-    // a carry came out of bit 3 into bit 4. `a ^ b` is the sum without carries,
-    // so XORing it with the real result leaves exactly the bits a carry arrived at.
+    flags.set(Flags::CF, sum > size.mask() as u128);
     flags.set(Flags::AF, (a ^ b ^ result) & 0x10 != 0);
-
-    // set overflow flag if the result didn't fit as a signed number.
     flags.set(
         Flags::OF,
         (a ^ result) & (b ^ result) & size.sign_bit() != 0,
@@ -87,14 +79,22 @@ pub(crate) fn add(a: u64, b: u64, size: Size) -> (u64, Flags) {
     (result, flags)
 }
 
-pub(crate) fn sub(a: u64, b: u64, size: Size) -> (u64, Flags) {
+pub(crate) fn sbb(a: u64, b: u64, borrow: bool, size: Size) -> (u64, Flags) {
     let (a, b) = (a & size.mask(), b & size.mask());
-    let result = a.wrapping_sub(b) & size.mask();
+    let result = a.wrapping_sub(b).wrapping_sub(borrow as u64) & size.mask();
     let mut flags = result_flags(result, size);
-    flags.set(Flags::CF, a < b);
+    flags.set(Flags::CF, (a as u128) < b as u128 + borrow as u128);
     flags.set(Flags::AF, (a ^ b ^ result) & 0x10 != 0);
     flags.set(Flags::OF, (a ^ b) & (a ^ result) & size.sign_bit() != 0);
     (result, flags)
+}
+
+pub(crate) fn add(a: u64, b: u64, size: Size) -> (u64, Flags) {
+    adc(a, b, false, size)
+}
+
+pub(crate) fn sub(a: u64, b: u64, size: Size) -> (u64, Flags) {
+    sbb(a, b, false, size)
 }
 
 pub(crate) fn shl(a: u64, count: u32, size: Size) -> (u64, Flags) {

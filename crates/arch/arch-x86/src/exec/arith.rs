@@ -23,6 +23,28 @@ pub(crate) fn sub(
     alu(state, memory, instruction, flags::sub)
 }
 
+pub(crate) fn adc(
+    state: &mut X86State,
+    memory: &mut AddressSpace,
+    instruction: &Instruction,
+) -> Result<(), CpuError> {
+    let carry = state.rflags.contains(Flags::CF);
+    alu(state, memory, instruction, |a, b, size| {
+        flags::adc(a, b, carry, size)
+    })
+}
+
+pub(crate) fn sbb(
+    state: &mut X86State,
+    memory: &mut AddressSpace,
+    instruction: &Instruction,
+) -> Result<(), CpuError> {
+    let borrow = state.rflags.contains(Flags::CF);
+    alu(state, memory, instruction, |a, b, size| {
+        flags::sbb(a, b, borrow, size)
+    })
+}
+
 pub(crate) fn cmp(
     state: &mut X86State,
     memory: &mut AddressSpace,
