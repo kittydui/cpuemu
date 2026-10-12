@@ -3,9 +3,8 @@ use emu_mem::AddressSpace;
 use iced_x86::Instruction;
 
 use crate::{
-    X86State,
-    exec::{alu, compare},
-    flags, operand,
+    X86State, flags, operand,
+    units::alu::{alu, compare},
 };
 
 pub(crate) fn and(
@@ -24,7 +23,6 @@ pub(crate) fn not(
     memory: &mut AddressSpace,
     instruction: &Instruction,
 ) -> Result<(), CpuError> {
-    // not inverts its operand in place and leaves every flag unchanged.
     let size = operand::size(instruction, 0)?;
     let destination = operand::locate(state, instruction, 0)?;
     let value = operand::load(state, memory, destination, size)?;

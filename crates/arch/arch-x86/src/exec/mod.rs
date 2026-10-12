@@ -14,53 +14,7 @@ use emu_mem::AddressSpace;
 use emu_shared::Address;
 use iced_x86::{Instruction, Mnemonic};
 
-use crate::{
-    Flags, X86State,
-    operand::{self, Location, Size},
-};
-
-// ALU helper
-
-type AluResult = (Location, Size, u64, Flags);
-
-fn calculate(
-    state: &X86State,
-    memory: &AddressSpace,
-    instruction: &Instruction,
-    op: impl Fn(u64, u64, Size) -> (u64, Flags),
-) -> Result<AluResult, CpuError> {
-    let size = operand::size(instruction, 0)?;
-    let destination = operand::locate(state, instruction, 0)?;
-    let a = operand::load(state, memory, destination, size)?;
-    let b = operand::read(state, memory, instruction, 1)?;
-    let (result, flags) = op(a, b, size);
-    Ok((destination, size, result, flags))
-}
-
-// writes back the result of the operation.
-pub(crate) fn alu(
-    state: &mut X86State,
-    memory: &mut AddressSpace,
-    instruction: &Instruction,
-    op: impl Fn(u64, u64, Size) -> (u64, Flags),
-) -> Result<(), CpuError> {
-    let (destination, size, result, flags) = calculate(state, memory, instruction, op)?;
-    operand::store(state, memory, destination, size, result)?;
-    state.rflags.update(Flags::STATUS, flags);
-    Ok(())
-}
-
-// doesn't write back the result.
-pub(crate) fn compare(
-    state: &mut X86State,
-    memory: &AddressSpace,
-    instruction: &Instruction,
-    op: impl Fn(u64, u64, Size) -> (u64, Flags),
-) -> Result<(), CpuError> {
-    let (_, _, _, flags) = calculate(state, memory, instruction, op)?;
-    state.rflags.update(Flags::STATUS, flags);
-    Ok(())
-}
+use crate::X86State;
 
 // interpreter loop
 pub(crate) fn execute(
@@ -84,6 +38,13 @@ pub(crate) fn execute(
 
         // Control
         Mnemonic::Jmp => control::jmp(state, memory, instruction),
+        Mnemonic::Call => control::call(state, memory, instruction),
+        Mnemonic::Ret => control::ret(state, memory, instruction),
+
+        // Stack
+        Mnemonic::Push => stack::push(state, memory, instruction),
+        Mnemonic::Pop => stack::pop(state, memory, instruction),
+        Mnemonic::Leave => stack::leave(state, memory, instruction),
 
         // Data
         Mnemonic::Mov => data::mov(state, memory, instruction),
@@ -92,7 +53,7 @@ pub(crate) fn execute(
         Mnemonic::Nop => data::nop(state, memory, instruction),
         Mnemonic::Hlt => Err(CpuError::Halt),
 
-        // Jcc doesn't have a Mnemonic enum member, we just check `is_jcc_short_or_near`.
+        // we just check `is_jcc_short_or_near` and it handles all 16 conditional jmps
         _ if instruction.is_jcc_short_or_near() => control::jcc(state, memory, instruction),
         _ => Err(CpuError::Unimplemented(Address(instruction.ip()))),
     }

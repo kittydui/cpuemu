@@ -3,9 +3,8 @@ use emu_mem::AddressSpace;
 use iced_x86::Instruction;
 
 use crate::{
-    X86State,
-    exec::{alu, compare},
-    flags,
+    X86State, flags,
+    units::alu::{alu, compare},
 };
 
 pub(crate) fn add(

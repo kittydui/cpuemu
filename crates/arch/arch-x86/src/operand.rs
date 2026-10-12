@@ -183,35 +183,13 @@ pub(crate) fn effective_address(
 ) -> Result<u64, CpuError> {
     instruction
         .virtual_address(operand, 0, |register, _, _| match register {
-            // In 64-bit mode the ES, CS, SS and DS bases are always 0.
             Register::ES | Register::CS | Register::SS | Register::DS => Some(0),
-            // FS/GS bases aren't modelled yet, so these become Unimplemented.
             Register::FS | Register::GS => None,
             register => {
                 gpr(register).map(|(index, size, high)| extract(state.gpr[index], size, high))
             }
         })
         .ok_or_else(|| unimplemented(instruction))
-}
-
-pub(crate) fn read_register(
-    state: &X86State,
-    instruction: &Instruction,
-    register: Register,
-) -> Result<u64, CpuError> {
-    let (index, size, high) = gpr(register).ok_or_else(|| unimplemented(instruction))?;
-    Ok(extract(state.gpr[index], size, high))
-}
-
-pub(crate) fn write_register(
-    state: &mut X86State,
-    instruction: &Instruction,
-    register: Register,
-    value: u64,
-) -> Result<(), CpuError> {
-    let (index, size, high) = gpr(register).ok_or_else(|| unimplemented(instruction))?;
-    state.gpr[index] = merge(state.gpr[index], value, size, high);
-    Ok(())
 }
 
 fn gpr(register: Register) -> Option<(usize, Size, bool)> {
@@ -236,7 +214,7 @@ mod tests {
     use iced_x86::{Decoder, DecoderOptions};
 
     use super::*;
-    use crate::{Flags, RAX, RBX, RCX};
+    use crate::{Flags, RBX, RCX};
 
     fn decode(bytes: &[u8]) -> Instruction {
         Decoder::with_ip(64, bytes, 0x1000, DecoderOptions::NONE).decode()
@@ -248,36 +226,6 @@ mod tests {
             rip: 0x1000,
             rflags: Flags::RESET,
         }
-    }
-
-    #[test]
-    fn dword_write_zero_extends() {
-        let mut state = state();
-        state.gpr[RAX.0 as usize] = u64::MAX;
-        let instruction = decode(&[0x90]);
-        write_register(&mut state, &instruction, Register::EAX, 1).unwrap();
-        assert_eq!(state.gpr[RAX.0 as usize], 1);
-    }
-
-    #[test]
-    fn narrow_writes_keep_other_bits() {
-        let mut state = state();
-        let instruction = decode(&[0x90]);
-        state.gpr[RAX.0 as usize] = 0x1122_3344_5566_7788;
-        write_register(&mut state, &instruction, Register::AX, 0xAAAA).unwrap();
-        assert_eq!(state.gpr[RAX.0 as usize], 0x1122_3344_5566_AAAA);
-        write_register(&mut state, &instruction, Register::AL, 0xBB).unwrap();
-        assert_eq!(state.gpr[RAX.0 as usize], 0x1122_3344_5566_AABB);
-        write_register(&mut state, &instruction, Register::AH, 0xCC).unwrap();
-        assert_eq!(state.gpr[RAX.0 as usize], 0x1122_3344_5566_CCBB);
-    }
-
-    #[test]
-    fn read_high_byte() {
-        let mut state = state();
-        state.gpr[RAX.0 as usize] = 0x7788;
-        let instruction = decode(&[0x90]);
-        assert_eq!(read_register(&state, &instruction, Register::AH), Ok(0x77));
     }
 
     #[test]

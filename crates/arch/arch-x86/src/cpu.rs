@@ -126,6 +126,20 @@ mod tests {
     }
 
     #[test]
+    fn typed_register_access() {
+        use emu_core::CpuExt;
+
+        let mut cpu = X86Cpu::new();
+        cpu.set_register(RAX, 0x1122_3344_5566_7788u64);
+        assert_eq!(cpu.register::<u64>(RAX), 0x1122_3344_5566_7788);
+        // A narrower type gets the low bytes.
+        assert_eq!(cpu.register::<u32>(RAX), 0x5566_7788);
+        // A narrower value is zero-extended to the full register.
+        cpu.set_register(RAX, 0xABu8);
+        assert_eq!(cpu.register::<u64>(RAX), 0xAB);
+    }
+
+    #[test]
     fn nop_advances_rip() {
         // nop; nop dword ptr [rax+rax]
         let mut machine = machine(&[0x90, 0x0F, 0x1F, 0x44, 0x00, 0x00], 0x1000);
