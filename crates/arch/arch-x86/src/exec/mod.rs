@@ -80,6 +80,10 @@ pub(crate) fn execute(
         Mnemonic::Or => logic::or(state, memory, instruction),
         Mnemonic::Xor => logic::xor(state, memory, instruction),
         Mnemonic::Test => logic::test(state, memory, instruction),
+        Mnemonic::Not => logic::not(state, memory, instruction),
+
+        // Control
+        Mnemonic::Jmp => control::jmp(state, memory, instruction),
 
         // Data
         Mnemonic::Mov => data::mov(state, memory, instruction),
@@ -87,6 +91,9 @@ pub(crate) fn execute(
         // Misc
         Mnemonic::Nop => data::nop(state, memory, instruction),
         Mnemonic::Hlt => Err(CpuError::Halt),
+
+        // Jcc doesn't have a Mnemonic enum member, we just check `is_jcc_short_or_near`.
+        _ if instruction.is_jcc_short_or_near() => control::jcc(state, memory, instruction),
         _ => Err(CpuError::Unimplemented(Address(instruction.ip()))),
     }
 }
