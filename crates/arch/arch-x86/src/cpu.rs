@@ -132,9 +132,7 @@ mod tests {
         let mut cpu = X86Cpu::new();
         cpu.set_register(RAX, 0x1122_3344_5566_7788u64);
         assert_eq!(cpu.register::<u64>(RAX), 0x1122_3344_5566_7788);
-        // A narrower type gets the low bytes.
         assert_eq!(cpu.register::<u32>(RAX), 0x5566_7788);
-        // A narrower value is zero-extended to the full register.
         cpu.set_register(RAX, 0xABu8);
         assert_eq!(cpu.register::<u64>(RAX), 0xAB);
     }
