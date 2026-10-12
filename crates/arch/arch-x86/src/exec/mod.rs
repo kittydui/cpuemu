@@ -37,6 +37,7 @@ fn calculate(
     Ok((destination, size, result, flags))
 }
 
+// writes back the result of the operation.
 pub(crate) fn alu(
     state: &mut X86State,
     memory: &mut AddressSpace,
@@ -49,6 +50,7 @@ pub(crate) fn alu(
     Ok(())
 }
 
+// doesn't write back the result.
 pub(crate) fn compare(
     state: &mut X86State,
     memory: &AddressSpace,
@@ -59,6 +61,8 @@ pub(crate) fn compare(
     state.rflags.update(Flags::STATUS, flags);
     Ok(())
 }
+
+// interpreter loop
 pub(crate) fn execute(
     state: &mut X86State,
     memory: &mut AddressSpace,
@@ -72,6 +76,10 @@ pub(crate) fn execute(
         Mnemonic::Cmp => arith::cmp(state, memory, instruction),
 
         // Logic
+        Mnemonic::And => logic::and(state, memory, instruction),
+        Mnemonic::Or => logic::or(state, memory, instruction),
+        Mnemonic::Xor => logic::xor(state, memory, instruction),
+        Mnemonic::Test => logic::test(state, memory, instruction),
 
         // Data
         Mnemonic::Mov => data::mov(state, memory, instruction),
