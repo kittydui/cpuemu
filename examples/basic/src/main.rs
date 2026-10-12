@@ -20,7 +20,7 @@ fn setup() -> Machine<X86Cpu> {
 
 fn main() {
     let mut machine = setup();
-    let exit = run(&mut machine, &Breakpoints::new(), Some(1000));
+    let exit = run(&mut machine, &mut Breakpoints::new(), Some(1000));
 
     println!("exit reason:  {:?}", exit.stop);
     println!("executed:     {} instructions", exit.executed);
@@ -46,17 +46,14 @@ mod tests {
     #[test]
     fn runs_to_hlt() {
         let mut machine = setup();
-        let exit = run(&mut machine, &Breakpoints::new(), Some(1000));
+        let exit = run(&mut machine, &mut Breakpoints::new(), Some(1000));
         assert_eq!(
             exit,
             Exit {
                 stop: Stop::Cpu(CpuError::Halt),
-                executed: 3,
+                executed: 4,
             }
         );
-        assert_eq!(
-            machine.cpu.pc(),
-            Address(CODE_BASE.0 + CODE.len() as u64 - 1)
-        );
+        assert_eq!(machine.cpu.pc(), Address(CODE_BASE.0 + CODE.len() as u64));
     }
 }

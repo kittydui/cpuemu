@@ -1,4 +1,5 @@
 use bitflags::bitflags;
+use iced_x86::ConditionCode;
 
 use crate::operand::Size;
 
@@ -34,12 +35,51 @@ impl Flags {
     }
 }
 
+// Jump-condition.
+pub(crate) fn jc(flags: Flags, code: ConditionCode) -> bool {
+    let (cf, zf, sf, of, pf) = (
+        flags.contains(Flags::CF),
+        flags.contains(Flags::ZF),
+        flags.contains(Flags::SF),
+        flags.contains(Flags::OF),
+        flags.contains(Flags::PF),
+    );
+    match code {
+        ConditionCode::o => of,
+        ConditionCode::no => !of,
+        ConditionCode::b => cf,
+        ConditionCode::ae => !cf,
+        ConditionCode::e => zf,
+        ConditionCode::ne => !zf,
+        ConditionCode::be => cf || zf,
+        ConditionCode::a => !cf && !zf,
+        ConditionCode::s => sf,
+        ConditionCode::ns => !sf,
+        ConditionCode::p => pf,
+        ConditionCode::np => !pf,
+        ConditionCode::l => sf != of,
+        ConditionCode::ge => sf == of,
+        ConditionCode::le => zf || sf != of,
+        ConditionCode::g => !zf && sf == of,
+        ConditionCode::None => false,
+    }
+}
+
 pub(crate) fn add(a: u64, b: u64, size: Size) -> (u64, Flags) {
+    // mask a and b to the correct size so we dont always just add r* registers (rax, rbx, etc.)
     let (a, b) = (a & size.mask(), b & size.mask());
+    // add b to a.
     let result = a.wrapping_add(b) & size.mask();
+
     let mut flags = result_flags(result, size);
+    // set carry flag if result is lt a, (didn't fit as an unsigned number).
     flags.set(Flags::CF, result < a);
+
+    // a carry came out of bit 3 into bit 4. `a ^ b` is the sum without carries,
+    // so XORing it with the real result leaves exactly the bits a carry arrived at.
     flags.set(Flags::AF, (a ^ b ^ result) & 0x10 != 0);
+
+    // set overflow flag if the result didn't fit as a signed number.
     flags.set(
         Flags::OF,
         (a ^ result) & (b ^ result) & size.sign_bit() != 0,
@@ -57,15 +97,19 @@ pub(crate) fn sub(a: u64, b: u64, size: Size) -> (u64, Flags) {
     (result, flags)
 }
 
-// and / or / xor / test: CF and OF cleared, AF undefined (left clear).
 pub(crate) fn logic(result: u64, size: Size) -> Flags {
+    // the caller has already computed the result so
+    // all we do here is set the result flags.
     result_flags(result & size.mask(), size)
 }
 
 fn result_flags(result: u64, size: Size) -> Flags {
     let mut flags = Flags::empty();
+    // set Zero Flag if the resulting number is 0
     flags.set(Flags::ZF, result == 0);
+    // copy the result's top bit to Sign Flag, 1 if negative (signed), 0 (unsigned).
     flags.set(Flags::SF, result & size.sign_bit() != 0);
+    // set Parity Flag if low byte of the result has even number of 1 bits.
     flags.set(Flags::PF, (result as u8).count_ones() % 2 == 0);
     flags
 }

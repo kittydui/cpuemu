@@ -66,10 +66,20 @@ impl Cpu for X86Cpu {
 
     fn step(&mut self, memory: &mut AddressSpace) -> Result<(), CpuError> {
         let instruction = decode::decode(memory, self.state.rip)?;
-        let mut next = self.state;
-        exec::execute(&mut next, memory, &instruction)?;
-        self.state = next;
-        Ok(())
+        #[cfg(debug_assertions)]
+        let before = self.state;
+        let result = exec::execute(&mut self.state, memory, &instruction);
+        if matches!(result, Err(error) if error != CpuError::Halt) {
+            self.state.rip = instruction.ip();
+            #[cfg(debug_assertions)]
+            assert_eq!(
+                self.state,
+                before,
+                "instruction at {:#x} changed state before failing",
+                instruction.ip()
+            );
+        }
+        result
     }
 }
 
@@ -171,6 +181,6 @@ mod tests {
     fn hlt_stops_without_moving_rip() {
         let mut machine = machine(&[0xF4], 0x1000);
         assert_eq!(machine.step(), Err(CpuError::Halt));
-        assert_eq!(machine.cpu.pc(), Address(0x1000));
+        assert_eq!(machine.cpu.pc(), Address(0x1001));
     }
 }
