@@ -17,6 +17,7 @@ members = [
     "crates/bindings/luau",
     "crates/frontends/cli",
     "crates/frontends/gui",
+    "examples/*",
 ]
 
 [workspace.package]
@@ -28,6 +29,7 @@ rust-version = "1.85"
 iced-x86 = { version = "1.21.0", default-features = false, features = [
     "std",
     "decoder",
+    "instr_info",
 ] }
 bitflags = "2.13.2"
 anyhow = "1.0.104"

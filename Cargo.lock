@@ -60,12 +60,27 @@ name = "emu-disasm"
 version = "0.1.0"
 
 [[package]]
+name = "emu-example-basic"
+version = "0.1.0"
+dependencies = [
+ "emu-arch-x86",
+ "emu-core",
+ "emu-interpreter",
+ "emu-shared",
+]
+
+[[package]]
 name = "emu-gui"
 version = "0.1.0"
 
 [[package]]
 name = "emu-interpreter"
 version = "0.1.0"
+dependencies = [
+ "emu-arch-x86",
+ "emu-core",
+ "emu-shared",
+]
 
 [[package]]
 name = "emu-jit"

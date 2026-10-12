@@ -1,0 +1,12 @@
+[package]
+name = "emu-example-basic"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[dependencies]
+emu-shared.workspace = true
+emu-core.workspace = true
+emu-arch-x86.workspace = true
+emu-interpreter.workspace = true
