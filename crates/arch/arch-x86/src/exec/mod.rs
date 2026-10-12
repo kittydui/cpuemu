@@ -28,6 +28,17 @@ pub(crate) fn execute(
         Mnemonic::Add => arith::add(state, memory, instruction),
         Mnemonic::Sub => arith::sub(state, memory, instruction),
         Mnemonic::Cmp => arith::cmp(state, memory, instruction),
+        Mnemonic::Inc => arith::inc(state, memory, instruction),
+        Mnemonic::Dec => arith::dec(state, memory, instruction),
+        Mnemonic::Neg => arith::neg(state, memory, instruction),
+
+        // Mul
+        Mnemonic::Imul => mul::imul(state, memory, instruction),
+
+        // Shift
+        Mnemonic::Shr => shift::shr(state, memory, instruction),
+        Mnemonic::Shl | Mnemonic::Sal => shift::shl(state, memory, instruction),
+        Mnemonic::Sar => shift::sar(state, memory, instruction),
 
         // Logic
         Mnemonic::And => logic::and(state, memory, instruction),
@@ -48,6 +59,7 @@ pub(crate) fn execute(
 
         // Data
         Mnemonic::Mov => data::mov(state, memory, instruction),
+        Mnemonic::Lea => data::lea(state, memory, instruction),
 
         // Misc
         Mnemonic::Nop => data::nop(state, memory, instruction),

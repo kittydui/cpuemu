@@ -4,16 +4,16 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 
 ## Common Instructions
 
-**10 / 129 done**
+**26 / 129 done**
 
 <details>
-<summary>Data transfer: <code>data.rs</code> (2/14)</summary>
+<summary>Data transfer: <code>data.rs</code> (3/14)</summary>
 
 - [x] `mov`
 - [ ] `movzx`
 - [ ] `movsx`
 - [ ] `movsxd`
-- [ ] `lea`
+- [x] `lea`
 - [ ] `xchg`
 - [ ] `cmovcc` (all 16 conditions)
 - [ ] `bswap`
@@ -27,46 +27,46 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 </details>
 
 <details>
-<summary>Arithmetic: <code>arith.rs</code> (3/8)</summary>
+<summary>Arithmetic: <code>arith.rs</code> (6/8)</summary>
 
 - [x] `add`
 - [ ] `adc`
 - [x] `sub`
 - [ ] `sbb`
 - [x] `cmp`
-- [ ] `inc`
-- [ ] `dec`
-- [ ] `neg`
+- [x] `inc`
+- [x] `dec`
+- [x] `neg`
 
 </details>
 
 <details>
-<summary>Multiply and divide: <code>mul.rs</code> (0/4)</summary>
+<summary>Multiply and divide: <code>mul.rs</code> (1/4)</summary>
 
 - [ ] `mul`
-- [ ] `imul` (1-, 2- and 3-operand forms)
+- [x] `imul` (1-, 2- and 3-operand forms)
 - [ ] `div`
 - [ ] `idiv`
 
 </details>
 
 <details>
-<summary>Logic: <code>logic.rs</code> (4/5)</summary>
+<summary>Logic: <code>logic.rs</code> (5/5)</summary>
 
 - [x] `and`
 - [x] `or`
 - [x] `xor`
-- [ ] `not`
+- [x] `not`
 - [x] `test`
 
 </details>
 
 <details>
-<summary>Shift and rotate: <code>shift.rs</code> (0/9)</summary>
+<summary>Shift and rotate: <code>shift.rs</code> (3/9)</summary>
 
-- [ ] `shl` / `sal`
-- [ ] `shr`
-- [ ] `sar`
+- [x] `shl` / `sal`
+- [x] `shr`
+- [x] `sar`
 - [ ] `rol`
 - [ ] `ror`
 - [ ] `rcl`
@@ -89,12 +89,12 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 </details>
 
 <details>
-<summary>Control flow: <code>control.rs</code> (0/11)</summary>
+<summary>Control flow: <code>control.rs</code> (4/11)</summary>
 
-- [ ] `jmp`
-- [ ] `jcc` (all 16 conditions)
-- [ ] `call`
-- [ ] `ret` / `ret n`
+- [x] `jmp`
+- [x] `jcc` (all 16 conditions)
+- [x] `call`
+- [x] `ret` / `ret n`
 - [ ] `setcc` (all 16 conditions)
 - [ ] `loop`
 - [ ] `loope` / `loopz`
@@ -106,12 +106,12 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 </details>
 
 <details>
-<summary>Stack: <code>stack.rs</code> (0/6)</summary>
+<summary>Stack: <code>stack.rs</code> (3/6)</summary>
 
-- [ ] `push`
-- [ ] `pop`
+- [x] `push`
+- [x] `pop`
 - [ ] `enter`
-- [ ] `leave`
+- [x] `leave`
 - [ ] `pushf`
 - [ ] `popf`
 

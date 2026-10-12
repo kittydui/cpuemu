@@ -47,3 +47,20 @@ pub(crate) fn compare(
     state.rflags.update(Flags::STATUS, flags);
     Ok(())
 }
+
+// handles single operand instructions
+pub(crate) fn unary(
+    state: &mut X86State,
+    memory: &mut AddressSpace,
+    instruction: &Instruction,
+    written: Flags,
+    op: impl Fn(u64, Size) -> (u64, Flags),
+) -> Result<(), CpuError> {
+    let size = operand::size(instruction, 0)?;
+    let destination = operand::locate(state, instruction, 0)?;
+    let value = operand::load(state, memory, destination, size)?;
+    let (result, flags) = op(value, size);
+    operand::store(state, memory, destination, size, result)?;
+    state.rflags.update(written, flags);
+    Ok(())
+}

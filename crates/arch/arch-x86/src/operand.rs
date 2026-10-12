@@ -204,6 +204,18 @@ fn gpr(register: Register) -> Option<(usize, Size, bool)> {
     Some((register.full_register().number(), size, high))
 }
 
+impl X86State {
+    pub(crate) fn read(&self, register: Register) -> u64 {
+        let (index, size, high) = gpr(register).expect("not a general-purpose register");
+        extract(self.gpr[index], size, high)
+    }
+
+    pub(crate) fn write(&mut self, register: Register, value: u64) {
+        let (index, size, high) = gpr(register).expect("not a general-purpose register");
+        self.gpr[index] = merge(self.gpr[index], value, size, high);
+    }
+}
+
 fn unimplemented(instruction: &Instruction) -> CpuError {
     CpuError::Unimplemented(Address(instruction.ip()))
 }

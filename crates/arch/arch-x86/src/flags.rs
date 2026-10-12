@@ -97,6 +97,47 @@ pub(crate) fn sub(a: u64, b: u64, size: Size) -> (u64, Flags) {
     (result, flags)
 }
 
+pub(crate) fn shl(a: u64, count: u32, size: Size) -> (u64, Flags) {
+    let bits = size.bytes() as u32 * 8;
+    let a = a & size.mask();
+    let result = (a << count) & size.mask();
+    let carry = count <= bits && (a >> (bits - count)) & 1 != 0;
+    let mut flags = result_flags(result, size);
+    flags.set(Flags::CF, carry);
+    flags.set(Flags::OF, (result & size.sign_bit() != 0) != carry);
+    (result, flags)
+}
+
+pub(crate) fn shr(a: u64, count: u32, size: Size) -> (u64, Flags) {
+    let a = a & size.mask();
+    let result = a >> count;
+    let mut flags = result_flags(result, size);
+    flags.set(Flags::CF, (a >> (count - 1)) & 1 != 0);
+    flags.set(Flags::OF, count == 1 && a & size.sign_bit() != 0);
+    (result, flags)
+}
+
+pub(crate) fn sar(a: u64, count: u32, size: Size) -> (u64, Flags) {
+    let shift = 64 - size.bytes() as u32 * 8;
+    let signed = ((a << shift) as i64) >> shift; // sign-extend to 64 bits
+    let result = (signed >> count) as u64 & size.mask();
+    let mut flags = result_flags(result, size);
+    flags.set(Flags::CF, (signed >> (count - 1)) & 1 != 0);
+    (result, flags)
+}
+
+pub(crate) fn imul(a: u64, b: u64, size: Size) -> (u64, u64, Flags) {
+    let bits = size.bytes() as u32 * 8;
+    let product = sign_extend(a, size) as i128 * sign_extend(b, size) as i128;
+    let low = product as u64 & size.mask();
+    let high = (product >> bits) as u64 & size.mask();
+    let fits = sign_extend(low, size) as i128 == product;
+    let mut flags = result_flags(low, size);
+    flags.set(Flags::CF, !fits);
+    flags.set(Flags::OF, !fits);
+    (low, high, flags)
+}
+
 pub(crate) fn logic(result: u64, size: Size) -> Flags {
     // the caller has already computed the result so
     // all we do here is set the result flags.
@@ -112,6 +153,11 @@ fn result_flags(result: u64, size: Size) -> Flags {
     // set Parity Flag if low byte of the result has even number of 1 bits.
     flags.set(Flags::PF, (result as u8).count_ones() % 2 == 0);
     flags
+}
+
+fn sign_extend(value: u64, size: Size) -> i64 {
+    let shift = 64 - size.bytes() as u32 * 8;
+    ((value << shift) as i64) >> shift
 }
 
 #[cfg(test)]
