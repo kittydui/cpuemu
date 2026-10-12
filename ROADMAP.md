@@ -4,7 +4,7 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 
 ## Common Instructions
 
-**26 / 129 done**
+**28 / 129 done**
 
 <details>
 <summary>Data transfer: <code>data.rs</code> (2/13)</summary>
@@ -26,12 +26,12 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 </details>
 
 <details>
-<summary>Arithmetic: <code>arith.rs</code> (6/8)</summary>
+<summary>Arithmetic: <code>arith.rs</code> (8/8)</summary>
 
 - [x] `add`
-- [ ] `adc`
+- [x] `adc`
 - [x] `sub`
-- [ ] `sbb`
+- [x] `sbb`
 - [x] `cmp`
 - [x] `inc`
 - [x] `dec`
