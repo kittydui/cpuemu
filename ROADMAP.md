@@ -7,7 +7,7 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 **26 / 129 done**
 
 <details>
-<summary>Data transfer: <code>data.rs</code> (3/14)</summary>
+<summary>Data transfer: <code>data.rs</code> (2/13)</summary>
 
 - [x] `mov`
 - [ ] `movzx`
@@ -22,7 +22,6 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 - [ ] `cmpxchg8b`
 - [ ] `cmpxchg16b`
 - [ ] `xlat`
-- [x] `nop` (including multi-byte `nop r/m`)
 
 </details>
 
@@ -159,8 +158,9 @@ Instruction support in `emu-arch-x86`. An instruction is ticked once it's dispat
 </details>
 
 <details>
-<summary>Miscellaneous (1/10)</summary>
+<summary>Miscellaneous: <code>misc.rs</code> (2/11)</summary>
 
+- [x] `nop` (including multi-byte `nop r/m`)
 - [x] `hlt`
 - [ ] `cpuid`
 - [ ] `rdtsc`

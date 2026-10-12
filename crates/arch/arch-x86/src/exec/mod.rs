@@ -4,6 +4,7 @@ pub mod conv;
 pub mod data;
 pub mod flag;
 pub mod logic;
+pub mod misc;
 pub mod mul;
 pub mod shift;
 pub mod stack;
@@ -62,8 +63,8 @@ pub(crate) fn execute(
         Mnemonic::Lea => data::lea(state, memory, instruction),
 
         // Misc
-        Mnemonic::Nop => data::nop(state, memory, instruction),
-        Mnemonic::Hlt => Err(CpuError::Halt),
+        Mnemonic::Nop => misc::nop(state, memory, instruction),
+        Mnemonic::Hlt => misc::hlt(state, memory, instruction),
 
         // we just check `is_jcc_short_or_near` and it handles all 16 conditional jmps.
         _ if instruction.is_jcc_short_or_near() => control::jcc(state, memory, instruction),

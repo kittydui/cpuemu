@@ -7,14 +7,6 @@ use crate::{
     operand::{effective_address, read, write},
 };
 
-pub(crate) fn nop(
-    _state: &mut X86State,
-    _memory: &mut AddressSpace,
-    _instruction: &Instruction,
-) -> anyhow::Result<(), CpuError> {
-    Ok(())
-}
-
 pub(crate) fn mov(
     state: &mut X86State,
     memory: &mut AddressSpace,
