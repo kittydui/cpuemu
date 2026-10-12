@@ -69,6 +69,9 @@ pub(crate) fn execute(
         // Arithmatic
         Mnemonic::Add => arith::add(state, memory, instruction),
 
+        // Data
+        Mnemonic::Mov => data::mov(state, memory, instruction),
+
         // Misc
         Mnemonic::Nop => data::nop(state, memory, instruction),
         Mnemonic::Hlt => Err(CpuError::Halt),
