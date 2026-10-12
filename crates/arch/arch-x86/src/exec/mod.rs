@@ -68,6 +68,10 @@ pub(crate) fn execute(
     match instruction.mnemonic() {
         // Arithmatic
         Mnemonic::Add => arith::add(state, memory, instruction),
+        Mnemonic::Sub => arith::sub(state, memory, instruction),
+        Mnemonic::Cmp => arith::cmp(state, memory, instruction),
+
+        // Logic
 
         // Data
         Mnemonic::Mov => data::mov(state, memory, instruction),

@@ -41,10 +41,13 @@ fn main() {
         programs += &format!(
             "    Program {{ name: {name:?}, code: include_bytes!(concat!(env!(\"OUT_DIR\"), {binary:?})), expect: &{expect:?} }},\n"
         );
-        tests += &format!(
-            "    #[test]\n    fn {}() {{\n        super::assert_program(&super::PROGRAMS[{index}]);\n    }}\n",
-            test_name(name)
-        );
+        // Programs without `; expect` lines are only run by `cargo run`, not tested.
+        if !expect.is_empty() {
+            tests += &format!(
+                "    #[test]\n    fn {}() {{\n        super::assert_program(&super::PROGRAMS[{index}]);\n    }}\n",
+                test_name(name)
+            );
+        }
     }
 
     let generated = format!(
