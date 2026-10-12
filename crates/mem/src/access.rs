@@ -1,8 +1,11 @@
 use std::ops::Range;
 
-use emu_shared::{Access, Address, Fault, FaultKind};
+use emu_shared::{Access, Address, Endian, Fault, FaultKind, Value};
 
 use crate::{AddressSpace, PAGE_SIZE, Page, PageExt};
+
+// Large enough for the biggest `Value` (u128).
+const MAX_VALUE_SIZE: usize = 16;
 
 impl AddressSpace {
     pub fn read(&self, address: Address, buffer: &mut [u8]) -> Result<(), Fault> {
@@ -11,6 +14,26 @@ impl AddressSpace {
 
     pub fn write(&mut self, address: Address, data: &[u8]) -> Result<(), Fault> {
         self.write_bytes(address, data, true)
+    }
+
+    // Typed guest access in the CPU's byte order, e.g. `read_value::<u32>(address, Endian::Big)`.
+    pub fn read_value<T: Value>(&self, address: Address, endian: Endian) -> Result<T, Fault> {
+        let mut bytes = [0; MAX_VALUE_SIZE];
+        let bytes = &mut bytes[..T::SIZE];
+        self.read(address, bytes)?;
+        Ok(T::from_bytes(bytes, endian))
+    }
+
+    pub fn write_value<T: Value>(
+        &mut self,
+        address: Address,
+        value: T,
+        endian: Endian,
+    ) -> Result<(), Fault> {
+        let mut bytes = [0; MAX_VALUE_SIZE];
+        let bytes = &mut bytes[..T::SIZE];
+        value.to_bytes(endian, bytes);
+        self.write(address, bytes)
     }
 
     // Fills as much of `buffer` as is executable and returns how many bytes it got.
@@ -122,6 +145,32 @@ mod tests {
 
     const RW: Permissions = Permissions::READ.union(Permissions::WRITE);
     const RX: Permissions = Permissions::READ.union(Permissions::EXECUTE);
+
+    #[test]
+    fn typed_values_use_the_given_byte_order() {
+        let mut space = AddressSpace::new();
+        space.map(Address(0x1000), 0x1000, RW).unwrap();
+        space
+            .write_value(Address(0x1000), 0x1122_3344u32, Endian::Little)
+            .unwrap();
+        let mut bytes = [0; 4];
+        space.read(Address(0x1000), &mut bytes).unwrap();
+        assert_eq!(bytes, [0x44, 0x33, 0x22, 0x11]);
+        assert_eq!(
+            space.read_value::<u32>(Address(0x1000), Endian::Big),
+            Ok(0x4433_2211)
+        );
+    }
+
+    #[test]
+    fn typed_read_across_pages_faults_like_a_byte_read() {
+        let mut space = AddressSpace::new();
+        space.map(Address(0x1000), 0x1000, RW).unwrap();
+        assert_eq!(
+            space.read_value::<u64>(Address(0x1FFC), Endian::Little),
+            Err(fault(0x2000, Access::Read, FaultKind::Unmapped))
+        );
+    }
 
     fn fault(address: u64, access: Access, kind: FaultKind) -> Fault {
         Fault {

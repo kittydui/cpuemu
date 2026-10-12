@@ -17,6 +17,7 @@ members = [
     "crates/bindings/luau",
     "crates/frontends/cli",
     "crates/frontends/gui",
+    "examples/*",
 ]
 
 [workspace.package]
@@ -25,7 +26,13 @@ edition = "2024"
 rust-version = "1.85"
 
 [workspace.dependencies]
+iced-x86 = { version = "1.21.0", default-features = false, features = [
+    "std",
+    "decoder",
+    "instr_info",
+] }
 bitflags = "2.13.2"
+anyhow = "1.0.104"
 emu-shared = { path = "crates/shared" }
 emu-mem = { path = "crates/mem" }
 emu-core = { path = "crates/core" }
